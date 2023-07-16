@@ -1,0 +1,17 @@
+torch
+torchvision
+torchaudio
+
+timm
+wandb
+ftfy
+regex
+easydict
+pyyaml
+textaugment
+ipdb
+
+torchmetrics
+matplotlib
+jupyter
+ipykernel
