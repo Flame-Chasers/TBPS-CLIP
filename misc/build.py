@@ -1,5 +1,6 @@
-import numpy as np
 import torch
+import numpy as np
+from misc.lr_scheduler import LRSchedulerWithWarmup
 
 
 def interpolate_text(pos_embed_checkpoint, target_dim=77):
@@ -66,20 +67,41 @@ def cosine_scheduler(config):
     return schedule
 
 
+# def build_optimizer(config, model):
+#     p_wd, p_non_wd = [], []
+#     for n, p in model.named_parameters():
+#         if not p.requires_grad:
+#             continue  # frozen weights
+#         if p.ndim < 2 or 'bias' in n or 'ln' in n or 'bn' in n:
+#             p_non_wd.append(p)
+#         else:
+#             p_wd.append(p)
+#
+#     schedule_config = config.schedule
+#     optim_params = [{"params": p_wd, "weight_decay": schedule_config.weight_decay, "ratio": 1.},
+#                     {"params": p_non_wd, "weight_decay": 0, "ratio": 1.}]
+#
+#     optimizer = torch.optim.AdamW(optim_params, lr=schedule_config.lr, betas=schedule_config.betas,
+#                                   eps=schedule_config.eps, weight_decay=schedule_config.weight_decay)
+#     return optimizer
+
+
 def build_optimizer(config, model):
-    p_wd, p_non_wd = [], []
+    params = []
+    schedule_config = config.schedule
     for n, p in model.named_parameters():
         if not p.requires_grad:
             continue  # frozen weights
+        weight_decay = schedule_config.weight_decay
+        ratio = 1.
+
         if p.ndim < 2 or 'bias' in n or 'ln' in n or 'bn' in n:
-            p_non_wd.append(p)
-        else:
-            p_wd.append(p)
+            weight_decay = 0.
+        if "cross" in n or "classifier" in n or "mlm_head" in n:
+            ratio = ratio * schedule_config.ratio_factor  # default 5.0
 
-    schedule_config = config.schedule
-    optim_params = [{"params": p_wd, "weight_decay": schedule_config.weight_decay, "ratio": 1.},
-                    {"params": p_non_wd, "weight_decay": 0, "ratio": 1.}]
+        params += [{"params": [p], "weight_decay": weight_decay, "ratio": ratio}]
 
-    optimizer = torch.optim.AdamW(optim_params, lr=schedule_config.lr, betas=schedule_config.betas,
+    optimizer = torch.optim.AdamW(params, lr=schedule_config.lr, betas=schedule_config.betas,
                                   eps=schedule_config.eps, weight_decay=schedule_config.weight_decay)
     return optimizer

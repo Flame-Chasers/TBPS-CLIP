@@ -1,10 +1,11 @@
 device: 5
 
 misc:
-  seed: 0
+  seed: 1
 
 experiment:
   # image
+  input_resolution: [224, 224]
   simclr_mlp: [512, 128, 512]
   simclr_temperature: 0.1
   # text
@@ -18,12 +19,13 @@ experiment:
   mixgen_type: cat  # ori or cat
   mixgen_p: 0.1
   mixgen_ratio: 0.1
-  mvs_image: false
+  mvs_image: true
+
   # loss
   nitc_ratio: 1.0
   ####
-  ss: false
-  ss_ratio: 1.0
+  ss: true
+  ss_ratio: 0.4
   ####
   ritc: true
   ritc_ratio: 1.0
@@ -32,10 +34,10 @@ experiment:
   mlm_ratio: 1.0
   cmt_depth: 4 # cross modal transformer self attn layers
   ####
-  citc: false
+  citc: true
   citc_lambda1: 0.25
   citc_lambda2: 0.25
-  citc_ratio: 1.0
+  citc_ratio: 0.1
   ####
   id: false
   id_ratio: 1.0
@@ -53,7 +55,7 @@ schedule:
 model:
   ckpt_type: original_clip  # original_clip / saved
   saved_path: ../checkpoints/saved.pt
-  checkpoint: '../../data/CLIP/ViT-B-16.pt'
+  checkpoint: '../../checkpoints/clip/ViT-B-16.pt'
   use_gather: true
   softlabel_ratio: 0.5
   embed_dim: 512

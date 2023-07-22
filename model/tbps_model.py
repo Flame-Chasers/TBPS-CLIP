@@ -20,7 +20,7 @@ from collections import OrderedDict
 
 
 class CLIP(nn.Module):
-    def __init__(self, config, image_encode, text_encode, num_classes=11003):
+    def __init__(self, config, image_encode, text_encode, num_classes=11003, eps=1e-2):
         super().__init__()
         self.visual = image_encode
         self.encode_text = text_encode
@@ -31,6 +31,7 @@ class CLIP(nn.Module):
         nn.init.constant_(self.logit_scale, np.log(1 / 0.07))
         self.config = config
         self.eda = EDA()
+        self.eps = eps
 
         if config.experiment.ss:
             structure = config.experiment.simclr_mlp
@@ -184,8 +185,7 @@ class CLIP(nn.Module):
             logits_per_text_1 = logit_scale * text_features_norm @ image_features_norm_gathered.t()
             img_log = F.log_softmax(logits_per_image_1, dim=1)
             txt_log = F.log_softmax(logits_per_text_1, dim=1)
-            eps = 1e-2
-            target_log = (sim_targets + eps).log()
+            target_log = (sim_targets + self.eps).log()
             kl_img = F.kl_div(target_log, img_log, log_target=True, reduction='batchmean')
             kl_txt = F.kl_div(target_log, txt_log, log_target=True, reduction='batchmean')
             ritc_loss = 0.5 * (kl_img + kl_txt)
@@ -289,5 +289,5 @@ class CLIP(nn.Module):
 def clip_vitb(config, num_classes=11003):
     image_encode = visual_transformer(config)
     text_encode = text_transformers(config)
-    model = CLIP(config, image_encode, text_encode, num_classes)
+    model = CLIP(config, image_encode, text_encode, num_classes, config.experiment.ritc_eps)
     return model
