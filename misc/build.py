@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 from misc.lr_scheduler import LRSchedulerWithWarmup
@@ -36,7 +37,7 @@ def load_checkpoint(model, config):
             else:
                 new_state[name] = params
     elif config.model.ckpt_type == 'saved':
-        ckpt = torch.load(config.model.saved_path, map_location='cpu')
+        ckpt = torch.load(os.path.join(config.model.saved_path, 'checkpoint_best.pth'), map_location='cpu')
         new_state = ckpt['model']
     else:
         raise KeyError

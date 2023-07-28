@@ -1,11 +1,13 @@
 import time
 import torch
 import random
+import os
 
+from pathlib import Path
 from misc.build import load_checkpoint, cosine_scheduler, build_optimizer
 from misc.data import build_pedes_data
 from model.tbps_model import clip_vitb
-from misc.utils import parse_config, init_distributed_mode, set_seed, wandb_record, is_master, is_using_distributed, \
+from misc.utils import parse_config, init_distributed_mode, set_seed, is_master, is_using_distributed, \
     AverageMeter
 from misc.eval import test
 
@@ -127,12 +129,21 @@ def run(config):
                 best_rank_1 = rank_1
                 best_epoch = epoch
 
+                save_obj = {
+                    'model': model.module.state_dict(),
+                    'optimizer': optimizer.state_dict(),
+                    'config': config,
+                }
+                torch.save(save_obj, os.path.join(config.model.saved_path, 'checkpoint_best.pth'))
+
     print(f"best Acc@1: {best_rank_1} at epoch {best_epoch + 1}")
 
 
 if __name__ == '__main__':
     config_path = 'config.yaml'
     config = parse_config(config_path)
+
+    Path(config.model.saved_path).mkdir(parents=True, exist_ok=True)
 
     init_distributed_mode(config)
 
