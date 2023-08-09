@@ -1,7 +1,25 @@
 import os
 import torch
 import numpy as np
-from misc.lr_scheduler import LRSchedulerWithWarmup
+import math
+import torch.nn.functional as F
+
+
+def resize_pos_embed(posemb, posemb_new, hight, width):
+    # Rescale the grid of position embeddings when loading from state_dict. Adapted from
+    # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224
+    posemb = posemb.unsqueeze(0)
+    posemb_new = posemb_new.unsqueeze(0)
+
+    posemb_token, posemb_grid = posemb[:, :1], posemb[0, 1:]
+
+    gs_old = int(math.sqrt(len(posemb_grid)))
+    print('Resized position embedding from size:{} to size: {} with height:{} width: {}'.format(posemb.shape, posemb_new.shape, hight, width))
+    posemb_grid = posemb_grid.reshape(1, gs_old, gs_old, -1).permute(0, 3, 1, 2)
+    posemb_grid = F.interpolate(posemb_grid, size=(hight, width), mode='bilinear')
+    posemb_grid = posemb_grid.permute(0, 2, 3, 1).reshape(1, hight * width, -1)
+    posemb = torch.cat([posemb_token, posemb_grid], dim=1)
+    return posemb.squeeze(0)
 
 
 def interpolate_text(pos_embed_checkpoint, target_dim=77):
@@ -11,7 +29,7 @@ def interpolate_text(pos_embed_checkpoint, target_dim=77):
     start_token = pos_embed_checkpoint[:1, :]
     end_token = pos_embed_checkpoint[-1:, :]
     pos_tokens = pos_embed_checkpoint[1:-1, :].unsqueeze(0).permute(0, 2, 1)
-    pos_tokens = torch.nn.functional.interpolate(pos_tokens, size=target_dim-2, mode='linear')
+    pos_tokens = torch.nn.functional.interpolate(pos_tokens, size=target_dim - 2, mode='linear')
     pos_tokens = pos_tokens.squeeze(0).t()
     pos_tokens = torch.cat([start_token, pos_tokens, end_token], dim=0)
     return pos_tokens
@@ -29,10 +47,13 @@ def load_checkpoint(model, config):
         # 2 towers in new_state: visual, encode_text
         new_state = {}
         for name, params in state.items():
+            if name == 'visual.positional_embedding' and params.shape != model.visual.positional_embedding.shape:
+                params = resize_pos_embed(params, model.visual.positional_embedding, model.visual.num_y, model.visual.num_x)
+
             if name == 'positional_embedding':
                 new_state['encode_text.' + name] = interpolate_text(params, config.experiment.text_length)
             elif name.startswith('transformer') or name in ['positional_embedding', 'token_embedding.weight',
-                                                    'ln_final.weight', 'ln_final.bias', 'text_projection']:
+                                                            'ln_final.weight', 'ln_final.bias', 'text_projection']:
                 new_state['encode_text.' + name] = params
             else:
                 new_state[name] = params

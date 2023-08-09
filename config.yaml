@@ -55,7 +55,7 @@ schedule:
 
 model:
   ckpt_type: original_clip  # original_clip / saved
-  saved_path: 'ckpts/baseline'
+  saved_path: 'ckpts/baseline/CUHK-PEDES'
   checkpoint: '../../data/CLIP/ViT-B-16.pt'
   use_gather: true
   softlabel_ratio: 0.5
@@ -74,11 +74,11 @@ distributed:
   backend: nccl
   url: 'env://'
 
-anno_dir: 'data/cuhkpedes'
+anno_dir: 'data/CUHK-PEDES'
 image_dir: '../../datasets/cuhkpedes/imgs'
 
-# anno_dir: '../../datasets/RSTPReid/processed_data'
-# image_dir: '../../datasets/RSTPReid/imgs'
+#anno_dir: 'data/ICFG-PEDES'
+#image_dir: '../../datasets/ICFG-PEDES/imgs'
 
-# anno_dir: '../../datasets/ICFG-PEDES/processed_data'
-# image_dir: '../../datasets/ICFG-PEDES/imgs'
+#anno_dir: 'data/RSTPReid'
+#image_dir: '../../datasets/RSTPReid/imgs'

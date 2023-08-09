@@ -92,10 +92,14 @@ class cuhkpedes_eval(torch.utils.data.Dataset):
 
 
 def build_pedes_data(config):
+    size = config.experiment.input_resolution
+    if isinstance(size, int):
+        size = (size, size)
+
     normalize = transforms.Normalize(
         mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     val_transform = transforms.Compose([
-        transforms.Resize((224, 224), interpolation=transforms.InterpolationMode.BICUBIC, antialias=True),
+        transforms.Resize(size, interpolation=transforms.InterpolationMode.BICUBIC, antialias=True),
         transforms.ToTensor(),
         normalize
     ])
@@ -103,12 +107,12 @@ def build_pedes_data(config):
     rand_from = [
         transforms.ColorJitter(.1, .1, .1, 0),
         transforms.RandomRotation(15),
-        transforms.RandomResizedCrop(224, (0.9, 1.0), antialias=True),
+        transforms.RandomResizedCrop(size, (0.9, 1.0), antialias=True),
         transforms.RandomGrayscale(),
         transforms.RandomHorizontalFlip(),
         transforms.RandomErasing(scale=(0.10, 0.20)),
     ]
-    aug = Choose(rand_from)
+    aug = Choose(rand_from, size)
 
     train_dataset = ps_train_dataset(config.anno_dir, config.image_dir, aug, split='train', max_words=77)
     test_dataset = ps_eval_dataset(config.anno_dir, config.image_dir, val_transform, split='test', max_words=77)
@@ -148,13 +152,14 @@ normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 
 
 
 class Choose:
-    def __init__(self, rand_from):
+    def __init__(self, rand_from, size):
         self.choose_from = rand_from
+        self.size = size
 
     def __call__(self, image):
         aug_choice = np.random.choice(self.choose_from, 2)
         return transforms.Compose([
-            transforms.Resize((224, 224)),
+            transforms.Resize(self.size),
             transforms.ToTensor(),
             *aug_choice,
             normalize

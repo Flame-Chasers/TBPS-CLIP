@@ -1,15 +1,3 @@
-#!/usr/bin/env python
-# TextAugment: EDA
-#
-# Copyright (C) 2018-2020
-# Author: Joseph Sefara
-#
-# URL: <https://github.com/dsfsi/textaugment/>
-# For license information, see LICENSE
-#
-"""
-This module is an implementation of the original EDA algorithm (2019) [1].
-"""
 from nltk.corpus import wordnet, stopwords
 import random
 

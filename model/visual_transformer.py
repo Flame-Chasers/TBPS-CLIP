@@ -1,14 +1,20 @@
 import torch
-import torch.nn.functional as F
 from torch import nn
 from .base_transformer import Transformer, LayerNorm
+from typing import Tuple, Union
 
 
 class VisualTransformer(nn.Module):
-    def __init__(self, input_resolution: int, patch_size: int, width: int, layers: int, heads: int, embed_dim: int,
+    def __init__(self, input_resolution: Union[int, Tuple[int, int]], patch_size: int, width: int, layers: int, heads: int, embed_dim: int,
                  checkpoint: bool, dropout: float = 0, emb_dropout: float = 0):
         super().__init__()
+        if isinstance(input_resolution, int):
+            input_resolution = (input_resolution, input_resolution)
         self.input_resolution = input_resolution
+        self.num_x = (input_resolution[1] - patch_size) // patch_size + 1
+        self.num_y = (input_resolution[0] - patch_size) // patch_size + 1
+        num_patches = self.num_x * self.num_y
+
         output_dim = embed_dim
         self.output_dim = output_dim
         self.freeze_conv1 = True
@@ -17,7 +23,7 @@ class VisualTransformer(nn.Module):
 
         scale = width ** -0.5
         self.class_embedding = nn.Parameter(scale * torch.randn(width))
-        self.positional_embedding = nn.Parameter(scale * torch.randn((input_resolution // patch_size) ** 2 + 1, width))
+        self.positional_embedding = nn.Parameter(scale * torch.randn(num_patches + 1, width))
         self.ln_pre = LayerNorm(width)
 
         self.transformer = Transformer(width, layers, heads, checkpoint=checkpoint, dropout=dropout,
@@ -87,7 +93,7 @@ def visual_transformer(config):
     kwargs = {
         'layers': vision_layers,
         'heads': vision_heads,
-        'input_resolution': 224,
+        'input_resolution': config.experiment.input_resolution,
         'patch_size': 16,
         'width': vision_width,
         'checkpoint': False,
