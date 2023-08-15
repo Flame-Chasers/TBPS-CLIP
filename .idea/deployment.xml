@@ -9,6 +9,34 @@
           </mappings>
         </serverdata>
       </paths>
+      <paths name="97-blip">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="IRRA (project level)">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="byyoung@10.10.80.97:22 password">
+        <serverdata>
+          <mappings>
+            <mapping local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="byyoung@10.10.81.31:22 password">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/data1/byyoung/space/TBPS-CLIP" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
     </serverData>
   </component>
 </project>

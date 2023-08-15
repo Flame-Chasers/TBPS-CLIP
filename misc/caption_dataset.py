@@ -14,52 +14,9 @@ import random
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 Image.MAX_IMAGE_PIXELS = None
 
-def get_self_supervised_augmentation(type='simsiam'):
-    class GaussianBlur(object):
-        """Gaussian blur augmentation in SimCLR https://arxiv.org/abs/2002.05709"""
-
-        def __init__(self, sigma=[.1, 2.]):
-            self.sigma = sigma
-
-        def __call__(self, x):
-            sigma = random.uniform(self.sigma[0], self.sigma[1])
-            x = x.filter(ImageFilter.GaussianBlur(radius=sigma))
-            return x
-
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                        std=[0.229, 0.224, 0.225])
-
-    if type in ('simsiam', 'moco'):  # moco v2 & simsiam
-        aug = transforms.Compose([
-            transforms.RandomResizedCrop(224, scale=(0.2, 1.), antialias=True),
-            transforms.RandomApply([
-                transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
-            ], p=0.8),
-            transforms.RandomGrayscale(p=0.2),
-            transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            normalize
-        ])
-    elif type == 'simclr':
-        aug = transforms.Compose([
-            transforms.RandomResizedCrop(224, antialias=True),
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomApply([
-                transforms.ColorJitter(0.8, 0.8, 0.8, 0.2)  # not strengthened
-            ], p=0.8),
-            transforms.RandomGrayscale(p=0.2),
-            transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
-            transforms.ToTensor(),
-            normalize
-        ])
-    else:
-        raise NotImplementedError
-    return aug
-
 
 class ps_train_dataset(Dataset):
-    def __init__(self, ann_root, image_root, transform, split, max_words=30):
+    def __init__(self, ann_root, image_root, transform, aug_ss, split, max_words=30):
         ann_file = os.path.join(ann_root, split + '_reid.json')
         anns = json.load(open(ann_file))
         self.transform = transform
@@ -84,7 +41,7 @@ class ps_train_dataset(Dataset):
                 self.pairs.append((image_path, caption, caption_bt, person_idx))
                 self.person2text[person_idx].append(caption)
 
-        self.augmentation_ss = get_self_supervised_augmentation('simsiam')
+        self.augmentation_ss = aug_ss
 
     def __len__(self):
         return len(self.pairs)

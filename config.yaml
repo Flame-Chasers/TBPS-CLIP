@@ -1,7 +1,7 @@
 device: 5
 
 misc:
-  seed: 0
+  seed: 1
 
 experiment:
   # image
@@ -19,12 +19,12 @@ experiment:
   mixgen_type: cat  # ori or cat
   mixgen_p: 0.1
   mixgen_ratio: 0.1
-  mvs_image: false
+  mvs_image: true
 
   # loss
   nitc_ratio: 1.0
   ####
-  ss: false
+  ss: true
   ss_ratio: 0.4
   ####
   ritc: true
@@ -35,7 +35,7 @@ experiment:
   mlm_ratio: 1.0
   cmt_depth: 4 # cross modal transformer self attn layers
   ####
-  citc: false
+  citc: true
   citc_lambda1: 0.25
   citc_lambda2: 0.25
   citc_ratio: 0.1
@@ -55,7 +55,7 @@ schedule:
 
 model:
   ckpt_type: original_clip  # original_clip / saved
-  saved_path: 'ckpts/baseline/CUHK-PEDES'
+  saved_path: 'ckpts/f_baseline_224_224/CUHK-PEDES'
   checkpoint: '../../data/CLIP/ViT-B-16.pt'
   use_gather: true
   softlabel_ratio: 0.5

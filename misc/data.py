@@ -1,19 +1,19 @@
 import json
 import os
-
-from PIL import Image
-from PIL import ImageFilter
 import random
 
-from torch.utils.data import DataLoader
-import torch
-from torchvision import transforms
 import numpy as np
-from misc.utils import is_using_distributed
+import torch
+from PIL import Image
+from PIL import ImageFilter
+from torch.utils.data import DataLoader
+from torchvision import transforms
+
 from misc.caption_dataset import ps_train_dataset, ps_eval_dataset
+from misc.utils import is_using_distributed
 
 
-def get_self_supervised_augmentation():
+def get_self_supervised_augmentation(img_size):
     class GaussianBlur(object):
         """Gaussian blur augmentation in SimCLR https://arxiv.org/abs/2002.05709"""
 
@@ -27,10 +27,11 @@ def get_self_supervised_augmentation():
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
+
     aug = transforms.Compose([
-        transforms.RandomResizedCrop(224, scale=(0.2, 1.)),
+        transforms.RandomResizedCrop(img_size, scale=(0.2, 1.), antialias=True),
         transforms.RandomApply([
-            transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)
+            transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)  # not strengthened
         ], p=0.8),
         transforms.RandomGrayscale(p=0.2),
         transforms.RandomApply([GaussianBlur([.1, 2.])], p=0.5),
@@ -113,8 +114,9 @@ def build_pedes_data(config):
         transforms.RandomErasing(scale=(0.10, 0.20)),
     ]
     aug = Choose(rand_from, size)
+    aug_ss = get_self_supervised_augmentation(size)
 
-    train_dataset = ps_train_dataset(config.anno_dir, config.image_dir, aug, split='train', max_words=77)
+    train_dataset = ps_train_dataset(config.anno_dir, config.image_dir, aug, aug_ss, split='train', max_words=77)
     test_dataset = ps_eval_dataset(config.anno_dir, config.image_dir, val_transform, split='test', max_words=77)
 
     if is_using_distributed():
