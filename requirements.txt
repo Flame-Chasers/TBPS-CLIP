@@ -1,10 +1,11 @@
-torch
-torchvision
-torchaudio
+torch==1.13.0
+torchvision==0.14.0
+torchaudio==0.13.0
 
-timm
-wandb
-ftfy
+timm==0.6.11
+wandb==0.13.5
+ftfy==6.1.1
+
 regex
 easydict
 pyyaml

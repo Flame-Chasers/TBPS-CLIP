@@ -1,15 +1,17 @@
-import time
-import torch
-import random
 import os
-
+import random
+import time
 from pathlib import Path
+
+import torch
+
 from misc.build import load_checkpoint, cosine_scheduler, build_optimizer
 from misc.data import build_pedes_data
-from model.tbps_model import clip_vitb
+from misc.eval import test
 from misc.utils import parse_config, init_distributed_mode, set_seed, is_master, is_using_distributed, \
     AverageMeter
-from misc.eval import test
+from model.tbps_model import clip_vitb
+from options import get_args
 
 
 def run(config):
@@ -140,7 +142,11 @@ def run(config):
 
 
 if __name__ == '__main__':
-    config_path = 'config.yaml'
+    config_path = 'config/config.yaml'
+
+    args = get_args()
+    if args.simplified:
+        config_path = 'config/s.config.yaml'
     config = parse_config(config_path)
 
     Path(config.model.saved_path).mkdir(parents=True, exist_ok=True)
