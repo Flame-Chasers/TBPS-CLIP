@@ -1,6 +1,7 @@
 <div>
 
 # 【AAAI 2024 🔥】An Empirical Study of CLIP for Text-based Person Search
+[![Paper](http://img.shields.io/badge/Paper-AAAI_2024-Green.svg)](https://ojs.aaai.org/index.php/AAAI/article/view/27801)
 [![Paper](http://img.shields.io/badge/Paper-arxiv.2308.10045-FF6B6B.svg)](https://arxiv.org/abs/2308.10045)
 </div>
 
@@ -59,17 +60,28 @@ torchrun --rdzv_id=3 --rdzv_backend=c10d --rdzv_endpoint=localhost:0 --nnodes=1 
 main.py --simplified
 ```
 
+
+## Model Checkpoints
+|                                     |                                          **CUHK-PEDES**                                           | **ICFG-PEDES** | **RSTPReid** |
+|:-----------------------------------:|:-------------------------------------------------------------------------------------------------:|:--------------:|:------------:|
+| **TBPS-CLIP (ViT-B/16)**            | [Download](https://drive.google.com/file/d/1m_3pKanUWHQHeJ-zt-QeRXs7bmay-U5P/view?usp=drive_link) |  [Download](https://drive.google.com/file/d/1az4z5b_ADXR7DcysPB5giOl52LjWDCSu/view?usp=drive_link)  | [Download](https://drive.google.com/file/d/1qMUAsH-1lzkWUFQsUvUKTY0J6ZuGkYd6/view?usp=drive_link)         |
+| **Simplified TBPS-CLIP (ViT-B/16)** | [Download](https://drive.google.com/file/d/1W5oFZK9WNHMfy0OOaYQBzPsP1LZR80bT/view?usp=drive_link) |  [Download](https://drive.google.com/file/d/1UoLd-MQ8tYJ7YPgCbh3nVSVYnJ9a_TG5/view?usp=drive_link)  | [Download](https://drive.google.com/file/d/18zlc3q3Sze5rx3TqcfEeZEjrQXUTpcQF/view?usp=drive_link)         |
+
+
 ## Acknowledgement
 + [CLIP](https://arxiv.org/abs/2103.00020) The model architecture of TBPS-CLIP
 
 ## Citation
 If you find this paper useful, please consider staring 🌟 this repo and citing 📑 our paper:
 ```
-@article{cao2023empirical,
-  title={An Empirical Study of CLIP for Text-based Person Search},
+@inproceedings{cao2024empirical,
+  title={An Empirical Study of CLIP for Text-Based Person Search},
   author={Cao, Min and Bai, Yang and Zeng, Ziyin and Ye, Mang and Zhang, Min},
-  journal={arXiv preprint arXiv:2308.10045},
-  year={2023}
+  booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={38},
+  number={1},
+  pages={465--473},
+  year={2024}
 }
 ```
 
