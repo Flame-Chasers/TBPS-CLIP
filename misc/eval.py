@@ -1,6 +1,8 @@
+import os.path
+
 import torch
 import torch.nn.functional as F
-# import clip
+import numpy as np
 from text_utils.tokenizer import tokenize
 
 

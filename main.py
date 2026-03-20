@@ -122,7 +122,7 @@ def run(config):
             print("Epoch {} done. Time per batch: {:.3f}[s] Speed: {:.1f}[samples/s]"
                   .format(epoch + 1, time_per_batch, train_loader.batch_size / time_per_batch))
 
-            eval_result = test(model.module, dataloader['test_loader'], 77, config.device)
+            eval_result = test(model.module, dataloader['test_loader'], config.experiment.text_length, config.device)
             rank_1, rank_5, rank_10, map = eval_result['r1'], eval_result['r5'], eval_result['r10'], eval_result['mAP']
             print('Acc@1 {top1:.5f} Acc@5 {top5:.5f} Acc@10 {top10:.5f} mAP {mAP:.5f}'.format(top1=rank_1, top5=rank_5,
                                                                                               top10=rank_10, mAP=map))
